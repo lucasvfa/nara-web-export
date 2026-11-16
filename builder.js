@@ -3,7 +3,7 @@
 async function BUILD(D, H, opts) {
   const FALLBACK = { 'FH Noetica': 'Geist', '-apple-system': 'SF Pro', 'system-ui': 'SF Pro', 'BlinkMacSystemFont': 'SF Pro' };
   const WN = { 100: ['Thin'], 200: ['ExtraLight', 'Extra Light', 'Ultralight'], 300: ['Light'], 400: ['Regular', 'Book'], 500: ['Medium'], 600: ['SemiBold', 'Semi Bold', 'Semibold'], 700: ['Bold'], 800: ['ExtraBold', 'Extra Bold', 'Heavy'], 900: ['Black'] };
-  const avail = (globalThis.__naraFonts) || (globalThis.__naraFonts = await figma.listAvailableFontsAsync());
+  const avail = await figma.listAvailableFontsAsync();
   const fam = {}; for (const f of avail) (fam[f.fontName.family] = fam[f.fontName.family] || []).push(f.fontName.style);
   const loaded = {};
   const missing = new Set();
@@ -96,7 +96,7 @@ async function BUILD(D, H, opts) {
       // a substituted font runs wider than the original: shrink until it keeps the original lines and width
       const subst = !fam[st.f] || (Array.isArray(n[5]) && n[5].some(q => !fam[D.T[q[1]].f]));
       if (subst) {
-        for (let it = 0; it < 14; it++) {
+        for (let it = 0; it < 5; it++) {
           const over = n[7] ? t.height > h + 3 : t.width > w + 2;
           if (!over) break;
           const k = 0.97;
