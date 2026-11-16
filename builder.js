@@ -93,6 +93,21 @@ async function BUILD(D, H, opts) {
         const dw = t.width - w;
         t.x = x - ox - (al === 'CENTER' ? dw / 2 : al === 'RIGHT' ? dw : 0);
       }
+      // a substituted font runs wider than the original: shrink until it keeps the original lines and width
+      const subst = !fam[st.f] || (Array.isArray(n[5]) && n[5].some(q => !fam[D.T[q[1]].f]));
+      if (subst) {
+        for (let it = 0; it < 14; it++) {
+          const over = n[7] ? t.height > h + 3 : t.width > w + 2;
+          if (!over) break;
+          const k = 0.97;
+          const len = t.characters.length;
+          const segs = t.getStyledTextSegments(['fontSize', 'lineHeight']);
+          for (const sg of segs) {
+            t.setRangeFontSize(sg.start, sg.end, sg.fontSize * k);
+          }
+          if (!n[7]) { const dw = t.width - w; t.x = x - ox - (al === 'CENTER' ? dw / 2 : al === 'RIGHT' ? dw : 0); }
+        }
+      }
       t.y = y - oy + (h - t.height) / 2;
       return;
     }
