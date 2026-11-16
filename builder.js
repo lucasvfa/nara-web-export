@@ -75,15 +75,17 @@ async function BUILD(D, H, opts) {
       const st = D.T[n[6]];
       const t = figma.createText();
       t.fontName = await font(st.f, st.w, st.i);
-      t.characters = n[5];
+      const runs = Array.isArray(n[5]) ? n[5] : [[n[5], n[6]]];
+      t.characters = runs.map(q => q[0]).join('');
       t.fontSize = st.s;
       if (st.l) t.lineHeight = { value: st.l, unit: 'PIXELS' };
       if (st.k) t.letterSpacing = { value: st.k, unit: 'PIXELS' };
       t.fills = [solid(st.c)];
       if (st.u) t.textDecoration = 'UNDERLINE';
+      if (runs.length > 1) { let p0 = 0; for (const [s2, si] of runs) { const q = D.T[si]; const p1 = p0 + s2.length; if (p1 > p0) { t.setRangeFontName(p0, p1, await font(q.f, q.w, q.i)); t.setRangeFontSize(p0, p1, q.s); t.setRangeFills(p0, p1, [solid(q.c)]); if (q.l) t.setRangeLineHeight(p0, p1, { value: q.l, unit: 'PIXELS' }); t.setRangeLetterSpacing(p0, p1, { value: q.k || 0, unit: 'PIXELS' }); t.setRangeTextDecoration(p0, p1, q.u ? 'UNDERLINE' : 'NONE'); } p0 = p1; } }
       const al = { center: 'CENTER', right: 'RIGHT', end: 'RIGHT', justify: 'JUSTIFIED' }[st.a] || 'LEFT';
       t.textAlignHorizontal = al;
-      t.name = n[5].slice(0, 40);
+      t.name = t.characters.slice(0, 40);
       parent.appendChild(t);
       if (n[7]) { t.textAutoResize = 'HEIGHT'; t.resize(w + 2, h); t.x = x - ox; }
       else {
@@ -99,7 +101,7 @@ async function BUILD(D, H, opts) {
       r.resize(w, h); r.x = x - ox; r.y = y - oy;
       const p = n[7] || {};
       r.name = 'image · ' + (D.I[n[5]] || '').split('/').pop();
-      if (H[n[5]]) r.fills = [{ type: 'IMAGE', imageHash: H[n[5]], scaleMode: n[6] === 'contain' ? 'FIT' : 'FILL' }];
+      if (H[n[5]]) { const f0 = { type: 'IMAGE', imageHash: H[n[5]], scaleMode: n[6] === 'contain' ? 'FIT' : 'FILL' }; if (p.gs) f0.filters = { exposure: 0, contrast: 0, saturation: -1, temperature: 0, tint: 0, highlights: 0, shadows: 0 }; r.fills = [f0]; }
       else r.fills = [solid('#d9d9d9')];
       if (p.rd) { const [a, b, c, d] = p.rd; r.topLeftRadius = a; r.topRightRadius = b; r.bottomRightRadius = c; r.bottomLeftRadius = d; }
       if (p.op !== undefined) r.opacity = p.op;
@@ -113,6 +115,7 @@ async function BUILD(D, H, opts) {
       parent.appendChild(node);
       try { node.resize(w, h); } catch (e) {}
       node.x = x - ox; node.y = y - oy;
+      if (n[7] && 'findAll' in node) { const gray = p => { if (p.type !== 'SOLID') return p; const l = 0.299 * p.color.r + 0.587 * p.color.g + 0.114 * p.color.b; return Object.assign({}, p, { color: { r: l, g: l, b: l } }); }; for (const v of [node, ...node.findAll(() => true)]) { try { if (v.fills && v.fills !== figma.mixed) v.fills = v.fills.map(gray); if (v.strokes) v.strokes = v.strokes.map(gray); } catch (e) {} } }
       return;
     }
     if (kind === 4) {
