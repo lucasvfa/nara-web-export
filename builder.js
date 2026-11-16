@@ -87,7 +87,7 @@ async function BUILD(D, H, opts) {
       t.textAlignHorizontal = al;
       t.name = t.characters.slice(0, 40);
       parent.appendChild(t);
-      if (n[7]) { t.textAutoResize = 'HEIGHT'; t.resize(w + 2, h); t.x = x - ox; }
+      if (n[7]) { t.resize(w + 2, h); t.textAutoResize = 'HEIGHT'; t.x = x - ox; }
       else {
         t.textAutoResize = 'WIDTH_AND_HEIGHT';
         const dw = t.width - w;
