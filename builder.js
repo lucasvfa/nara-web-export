@@ -7,6 +7,7 @@ async function BUILD(D, H, opts) {
   const fam = {}; for (const f of avail) (fam[f.fontName.family] = fam[f.fontName.family] || []).push(f.fontName.style);
   const loaded = {};
   const missing = new Set();
+  const FXERR = [];
   async function font(ff, w, it) {
     let family = fam[ff] ? ff : (FALLBACK[ff] || 'SF Pro');
     if (!fam[ff]) missing.add(ff);
@@ -52,9 +53,9 @@ async function BUILD(D, H, opts) {
     }
     if (p.rd) { const [a, b, c, d] = p.rd; if (a === b && b === c && c === d) node.cornerRadius = a; else { node.topLeftRadius = a; node.topRightRadius = b; node.bottomRightRadius = c; node.bottomLeftRadius = d; } }
     const fx = [];
-    if (p.sh) for (const s of p.sh) { const k = col(s[0]); fx.push({ type: s[5] ? 'INNER_SHADOW' : 'DROP_SHADOW', color: k, offset: { x: s[1], y: s[2] }, radius: s[3], spread: s[4], visible: true, blendMode: 'NORMAL', showShadowBehindNode: false }); }
-    if (p.bb) fx.push({ type: 'BACKGROUND_BLUR', radius: p.bb, visible: true });
-    if (fx.length) node.effects = fx;
+    if (p.sh) for (const s of p.sh) { const k = col(s[0]); const e = { type: s[5] ? 'INNER_SHADOW' : 'DROP_SHADOW', color: k, offset: { x: s[1], y: s[2] }, radius: Math.max(0, s[3]), spread: s[4], visible: true, blendMode: 'NORMAL' }; if (!s[5]) e.showShadowBehindNode = false; fx.push(e); }
+    if (p.bb) fx.push({ type: 'BACKGROUND_BLUR', blurType: 'NORMAL', radius: p.bb, visible: true });
+    if (fx.length) { try { node.effects = fx; } catch (e) { try { node.effects = fx.filter(f => f.type !== 'BACKGROUND_BLUR'); } catch (e2) { FXERR.push(String(e.message || e).slice(0, 120)); } } }
     if (p.op !== undefined) node.opacity = p.op;
   }
   let count = 0;
@@ -127,5 +128,5 @@ async function BUILD(D, H, opts) {
   if (opts.parent) opts.parent.appendChild(page);
   for (const n of D.R) await make(n, page, 0, 0);
   page.setPluginData('naraUrl', D.u || '');
-  return { id: page.id, nodes: count, missing: [...missing] };
+  return { id: page.id, nodes: count, missing: [...missing], fxerr: FXERR.slice(0, 3) };
 }
