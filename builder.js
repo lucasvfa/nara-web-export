@@ -1,7 +1,7 @@
 // Nara web export builder. Called as: await BUILD(data, imageHashes, opts)
 // data: compact payload (see compact.py), imageHashes: {I index -> imageHash}
 async function BUILD(D, H, opts) {
-  const FALLBACK = { 'FH Noetica': 'DM Sans', '-apple-system': 'SF Pro', 'system-ui': 'SF Pro', 'BlinkMacSystemFont': 'SF Pro' };
+  const FALLBACK = { 'FH Noetica': 'Geist', '-apple-system': 'SF Pro', 'system-ui': 'SF Pro', 'BlinkMacSystemFont': 'SF Pro' };
   const WN = { 100: ['Thin'], 200: ['ExtraLight', 'Extra Light', 'Ultralight'], 300: ['Light'], 400: ['Regular', 'Book'], 500: ['Medium'], 600: ['SemiBold', 'Semi Bold', 'Semibold'], 700: ['Bold'], 800: ['ExtraBold', 'Extra Bold', 'Heavy'], 900: ['Black'] };
   const avail = (globalThis.__naraFonts) || (globalThis.__naraFonts = await figma.listAvailableFontsAsync());
   const fam = {}; for (const f of avail) (fam[f.fontName.family] = fam[f.fontName.family] || []).push(f.fontName.style);
@@ -100,7 +100,7 @@ async function BUILD(D, H, opts) {
       const r = figma.createRectangle();
       r.resize(w, h); r.x = x - ox; r.y = y - oy;
       const p = n[7] || {};
-      r.name = 'image · ' + (D.I[n[5]] || '').split('/').pop();
+      r.name = 'image \u00b7 ' + (D.I[n[5]] || '').split('/').pop();
       if (H[n[5]]) { const f0 = { type: 'IMAGE', imageHash: H[n[5]], scaleMode: n[6] === 'contain' ? 'FIT' : 'FILL' }; if (p.gs) f0.filters = { exposure: 0, contrast: 0, saturation: -1, temperature: 0, tint: 0, highlights: 0, shadows: 0 }; r.fills = [f0]; }
       else r.fills = [solid('#d9d9d9')];
       if (p.rd) { const [a, b, c, d] = p.rd; r.topLeftRadius = a; r.topRightRadius = b; r.bottomRightRadius = c; r.bottomLeftRadius = d; }
